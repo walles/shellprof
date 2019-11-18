@@ -32,11 +32,15 @@ timestamped_lines: List[Tuple[float, bytes]] = []
 # FIXME: Verify that Popen scans $PATH for executables
 with subprocess.Popen(sys.argv[1:], bufsize=1, stdout=subprocess.PIPE) as child:
     while True:
-        line = child.stdout.readline()
+        line: bytes = child.stdout.readline()
         timestamp = time.time()
         timestamped_lines.append((timestamp, line.strip()))
-        print(line, end="")
-        if line == "":
+
+        # Line collected, now pass it on
+        sys.stdout.buffer.write(line)
+        sys.stdout.buffer.flush()
+
+        if line == b"":
             break
 
 # FIXME: Print performance stats
