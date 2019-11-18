@@ -1,2 +1,42 @@
 #!/usr/bin/env python3
 
+"""Profile a shell script
+
+Or actually anything printing to stdout.
+
+Usage: shellprof <command> [args] ...
+
+This will run <command>, and after it is done shellprof will print
+a profile of which lines were shown the longest.
+"""
+
+import sys
+import time
+import subprocess
+
+from typing import List, Tuple
+
+if len(sys.argv) < 2:
+    # One is the executable (this script) name, the rest are command lines
+    print("ERROR: Please specify a command line to run")
+    print()
+    print(__doc__)
+    sys.exit(1)
+
+if sys.argv[1] in ["--help", "-h"]:
+    print(__doc__)
+    sys.exit()
+
+timestamped_lines: List[Tuple[float, bytes]] = []
+
+# FIXME: Verify that Popen scans $PATH for executables
+with subprocess.Popen(sys.argv[1:], bufsize=1, stdout=subprocess.PIPE) as child:
+    while True:
+        line = child.stdout.readline()
+        timestamp = time.time()
+        timestamped_lines.append((timestamp, line.strip()))
+        print(line, end="")
+        if line == "":
+            break
+
+# FIXME: Print performance stats
