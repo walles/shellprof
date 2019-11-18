@@ -35,7 +35,7 @@ if sys.argv[1] in ["--help", "-h"]:
 
 timestamped_lines: List[Tuple[float, bytes]] = []
 
-# FIXME: Verify that Popen scans $PATH for executables
+# Popen scans $PATH for executables, so this should work as people expect
 with subprocess.Popen(sys.argv[1:], bufsize=1, stdout=subprocess.PIPE) as child:
     timestamped_lines.append((time.time(), PROGRAM_START_MARKER))
     while True:
