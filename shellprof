@@ -16,6 +16,9 @@ import subprocess
 
 from typing import List, Tuple
 
+PROGRAM_START_MARKER = b"<<<PROGRAM START>>>\n"
+PROGRAM_END_MARKER = b"<<<PROGRAM END>>>\n"
+
 if len(sys.argv) < 2:
     # One is the executable (this script) name, the rest are command lines
     print("ERROR: Please specify a command line to run")
@@ -31,10 +34,11 @@ timestamped_lines: List[Tuple[float, bytes]] = []
 
 # FIXME: Verify that Popen scans $PATH for executables
 with subprocess.Popen(sys.argv[1:], bufsize=1, stdout=subprocess.PIPE) as child:
+    timestamped_lines.append((time.time(), PROGRAM_START_MARKER))
     while True:
         line: bytes = child.stdout.readline()
         timestamp = time.time()
-        timestamped_lines.append((timestamp, line.strip()))
+        timestamped_lines.append((timestamp, line))
 
         # Line collected, now pass it on
         sys.stdout.buffer.write(line)
@@ -42,5 +46,24 @@ with subprocess.Popen(sys.argv[1:], bufsize=1, stdout=subprocess.PIPE) as child:
 
         if line == b"":
             break
+    timestamped_lines.append((time.time(), PROGRAM_END_MARKER))
 
 # FIXME: Print performance stats
+durationstamped_lines: List[Tuple[float, bytes]] = []
+previous_line = timestamped_lines[0]
+for timestamped_line in timestamped_lines[1:]:
+    durationstamped_lines.append(
+        (timestamped_line[0] - previous_line[0], previous_line[1])
+    )
+    previous_line = timestamped_line
+
+# FIXME: Order duration stamped lines with longest first
+
+# FIXME: Print at most 10 lines in this loop
+print("")
+print("Timings for printed lines:")
+for durationstamped_line in durationstamped_lines:
+    duration = durationstamped_line[0]
+    line = durationstamped_line[1]
+    sys.stdout.buffer.write(f"{duration}s: ".encode())
+    sys.stdout.buffer.write(line)

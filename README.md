@@ -9,8 +9,6 @@ shellprof my-program --whatever --flags --myprogram --wants
 ```
 
 # Development
-Run `tox` to lint the code.
-
-Run `./shellprof ./testcase.sh` to test run the code.
+Run `tox && ./shellprof ./testcase.sh` to lint and test the code.
 
 For ease of distribution, `shellprof` only depends on the standard library.
