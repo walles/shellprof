@@ -16,6 +16,8 @@ import subprocess
 
 from typing import List, Tuple
 
+TOP_LIST_ROWS = 10
+
 PROGRAM_START_MARKER = b"<<<PROGRAM START>>>\n"
 PROGRAM_END_MARKER = b"<<<PROGRAM END>>>\n"
 
@@ -59,11 +61,16 @@ for timestamped_line in timestamped_lines[1:]:
 
 # FIXME: Order duration stamped lines with longest first
 
-# FIXME: Print at most 10 lines in this loop
 print("")
 print("Timings for printed lines:")
+
+printcount = 0
 for durationstamped_line in durationstamped_lines:
     duration = durationstamped_line[0]
     line = durationstamped_line[1]
     sys.stdout.buffer.write(b"%.2fs: " % duration)
     sys.stdout.buffer.write(line)
+
+    printcount += 1
+    if printcount >= TOP_LIST_ROWS:
+        break
