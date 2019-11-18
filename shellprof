@@ -12,6 +12,7 @@ a profile of which lines were shown the longest.
 
 import sys
 import time
+import operator
 import subprocess
 
 from typing import List, Tuple
@@ -53,7 +54,7 @@ with subprocess.Popen(sys.argv[1:], bufsize=1, stdout=subprocess.PIPE) as child:
 
 timestamped_lines.append((time.time(), PROGRAM_END_MARKER))
 
-# FIXME: Print performance stats
+# Compute performance stats
 durationstamped_lines: List[Tuple[float, bytes]] = []
 previous_line = timestamped_lines[0]
 for timestamped_line in timestamped_lines[1:]:
@@ -62,7 +63,7 @@ for timestamped_line in timestamped_lines[1:]:
     )
     previous_line = timestamped_line
 
-# FIXME: Order duration stamped lines with longest first
+durationstamped_lines.sort(key=operator.itemgetter(0), reverse=True)
 
 print("")
 print("Timings for printed lines:")
