@@ -65,5 +65,5 @@ print("Timings for printed lines:")
 for durationstamped_line in durationstamped_lines:
     duration = durationstamped_line[0]
     line = durationstamped_line[1]
-    sys.stdout.buffer.write(f"{duration}s: ".encode())
+    sys.stdout.buffer.write(b"%.2fs: " % duration)
     sys.stdout.buffer.write(line)
