@@ -39,7 +39,9 @@ timestamped_lines: List[Tuple[float, bytes]] = []
 with subprocess.Popen(sys.argv[1:], bufsize=1, stdout=subprocess.PIPE) as child:
     timestamped_lines.append((time.time(), PROGRAM_START_MARKER))
     while True:
-        line: bytes = child.stdout.readline()
+        stdout = child.stdout
+        assert stdout
+        line: bytes = stdout.readline()
         if line == b"":
             # The empty string here is just an EOF-marker and shouldn't
             # be treated as part of our child's output.
