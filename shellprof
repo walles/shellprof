@@ -8,6 +8,8 @@ Usage: shellprof <command> [args] ...
 
 This will run <command>, and after it is done shellprof will print
 a profile of which lines were shown the longest.
+
+Web page: https://github.com/walles/shellprof
 """
 
 import sys
