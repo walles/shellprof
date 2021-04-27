@@ -21,8 +21,8 @@ from typing import List, Tuple
 
 TOP_LIST_ROWS = 10
 
-PROGRAM_START_MARKER = b"<<<PROGRAM START>>>\n"
-PROGRAM_END_MARKER = b"<<<PROGRAM END>>>\n"
+PROGRAM_START_MARKER = "<<<PROGRAM START>>>\n"
+PROGRAM_END_MARKER = "<<<PROGRAM END>>>\n"
 
 if len(sys.argv) < 2:
     # One is the executable (this script) name, the rest are command lines
@@ -35,16 +35,18 @@ if sys.argv[1] in ["--help", "-h"]:
     print(__doc__)
     sys.exit()
 
-timestamped_lines: List[Tuple[float, bytes]] = []
+timestamped_lines: List[Tuple[float, str]] = []
 
 # Popen scans $PATH for executables, so this should work as people expect
-with subprocess.Popen(sys.argv[1:], bufsize=1, stdout=subprocess.PIPE) as child:
+with subprocess.Popen(
+    sys.argv[1:], bufsize=1, stdout=subprocess.PIPE, text=True
+) as child:
     timestamped_lines.append((time.time(), PROGRAM_START_MARKER))
     while True:
         stdout = child.stdout
         assert stdout
-        line: bytes = stdout.readline()
-        if line == b"":
+        line: str = stdout.readline()
+        if line == "":
             # The empty string here is just an EOF-marker and shouldn't
             # be treated as part of our child's output.
             break
@@ -53,13 +55,13 @@ with subprocess.Popen(sys.argv[1:], bufsize=1, stdout=subprocess.PIPE) as child:
         timestamped_lines.append((timestamp, line))
 
         # Line collected, now pass it on
-        sys.stdout.buffer.write(line)
+        sys.stdout.buffer.write(line.encode())
         sys.stdout.buffer.flush()
 
 timestamped_lines.append((time.time(), PROGRAM_END_MARKER))
 
 # Compute performance stats
-durationstamped_lines: List[Tuple[float, bytes]] = []
+durationstamped_lines: List[Tuple[float, str]] = []
 previous_line = timestamped_lines[0]
 for timestamped_line in timestamped_lines[1:]:
     durationstamped_lines.append(
@@ -77,7 +79,7 @@ for durationstamped_line in durationstamped_lines:
     duration = durationstamped_line[0]
     line = durationstamped_line[1]
     sys.stdout.buffer.write(b"%.2fs: " % duration)
-    sys.stdout.buffer.write(line)
+    sys.stdout.buffer.write(line.encode())
 
     printcount += 1
     if printcount >= TOP_LIST_ROWS:
